@@ -3,27 +3,24 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // 🔥 WAJIB
         $userId = auth()->id();
 
-        // ambil data user saja
         $data = DB::table('user_progress')
             ->where('user_id', $userId)
             ->get();
 
-        // rata-rata nilai
         $avg = $data->avg('nilai');
 
-        // avatar tanaman
         $tanaman = app(\App\Http\Controllers\MateriController::class)
             ->getAvatarTanaman($userId);
 
-        return view('biogami.dashboard', compact('avg', 'tanaman'));
+        return Inertia::render('Dashboard', compact('avg', 'tanaman'));
     }
 
     public function leaderboard()
@@ -39,22 +36,32 @@ class DashboardController extends Controller
             ->orderByDesc('rata')
             ->get();
 
-        return view('biogami.leaderboard', compact('data'));
+        return Inertia::render('Leaderboard', compact('data'));
     }
 
     public function grafik()
     {
         $userId = auth()->id();
 
-        $data = DB::table('user_progress')
-            ->join('materi', 'materi.id', '=', 'user_progress.materi_id')
-            ->where('user_progress.user_id', $userId)
+        $data = DB::table('materi')
+            ->leftJoin('user_progress as pre', function($join) use ($userId) {
+                $join->on('materi.id', '=', 'pre.materi_id')
+                     ->where('pre.user_id', '=', $userId)
+                     ->whereRaw("pre.tipe = 'pre'");
+            })
+            ->leftJoin('user_progress as post', function($join) use ($userId) {
+                $join->on('materi.id', '=', 'post.materi_id')
+                     ->where('post.user_id', '=', $userId)
+                     ->whereRaw("post.tipe = 'post'");
+            })
+            ->select(
+                'materi.pertemuan_ke',
+                DB::raw('COALESCE(pre.nilai, 0) as pre'),
+                DB::raw('COALESCE(post.nilai, 0) as post')
+            )
             ->orderBy('materi.pertemuan_ke')
             ->get();
 
-        $labels = $data->pluck('pertemuan_ke');
-        $nilai = $data->pluck('nilai');
-
-        return view('biogami.grafik', compact('labels', 'nilai'));
+        return Inertia::render('Grafik', compact('data'));
     }
 }

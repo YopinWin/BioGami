@@ -4,19 +4,20 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class MateriController extends Controller
 {
     // 🔥 PILIH KELAS
     public function kelasList()
     {
-        return view('biogami.materi.kelas_list');
+        return Inertia::render('Materi/Index');
     }
 
     // 🔥 PILIH SEMESTER
     public function kelas($kelas)
     {
-        return view('biogami.materi.kelas', compact('kelas'));
+        return Inertia::render('Materi/Kelas', compact('kelas'));
     }
 
     // 🔥 LIST PERTEMUAN
@@ -39,13 +40,13 @@ class MateriController extends Controller
             ->where('user_id', $userId)
             ->avg('nilai');
 
-        return view('biogami.materi.semester', compact(
-            'materi',
-            'kelas',
-            'semester',
-            'progress',
-            'total'
-        ));
+        return Inertia::render('Materi/Semester', [
+            'materi'   => $materi,
+            'kelas'    => $kelas,
+            'semester' => $semester,
+            'progress' => $progress,
+            'total'    => $total,
+        ]);
     }
 
     // 🔥 DETAIL + LOCK SYSTEM
@@ -82,7 +83,7 @@ class MateriController extends Controller
             }
         }
 
-        return view('biogami.materi.show', compact('materi'));
+        return Inertia::render('Materi/Show', compact('materi'));
     }
 
     // 🔥 SOAL (PRE & POST)
@@ -102,7 +103,7 @@ class MateriController extends Controller
             ->where('tipe', $tipe)
             ->get();
 
-        return view('biogami.materi.soal', compact('materi','soal','id','tipe'));
+        return Inertia::render('Materi/Soal', compact('materi', 'soal', 'id', 'tipe'));
     }
 
     // 🔥 SUBMIT SOAL (SUDAH SUPPORT PRE & POST)
@@ -153,14 +154,14 @@ class MateriController extends Controller
     public function materiDetail($id)
     {
         $materi = DB::table('materi')->where('id', $id)->first();
-        return view('biogami.materi.materi_detail', compact('materi'));
+        return Inertia::render('Materi/MateriDetail', compact('materi'));
     }
 
     // 🔥 VIDEO
     public function video($id)
     {
         $materi = DB::table('materi')->where('id', $id)->first();
-        return view('biogami.materi.video', compact('materi'));
+        return Inertia::render('Materi/Video', compact('materi'));
     }
 
     // 🔥 RAPORT
@@ -180,7 +181,7 @@ class MateriController extends Controller
     $pre = $data->firstWhere('tipe','pre')->nilai ?? 0;
     $post = $data->firstWhere('tipe','post')->nilai ?? 0;
 
-    return view('biogami.materi.raport', compact('materi','pre','post'));
+    return Inertia::render('Materi/Raport', compact('materi', 'pre', 'post'));
 }
 
     // 🌱 LEVEL TANAMAN
@@ -209,30 +210,30 @@ class MateriController extends Controller
         else return "🌳✨";
     }
 
-    // 🔥 GRAFIK (TAMBAHAN TANPA MENGGANGGU LOGIC LAMA)
+    // 🔥 GRAFIK
     public function grafik()
     {
         $userId = auth()->id();
 
         $data = DB::table('materi')
             ->leftJoin('user_progress as pre', function($join) use ($userId) {
-                $join->on('materi.id','=','pre.materi_id')
-                     ->where('pre.user_id',$userId)
-                     ->where('pre.tipe','pre');
+                $join->on('materi.id', '=', 'pre.materi_id')
+                     ->where('pre.user_id', '=', $userId)
+                     ->whereRaw("pre.tipe = 'pre'");
             })
             ->leftJoin('user_progress as post', function($join) use ($userId) {
-                $join->on('materi.id','=','post.materi_id')
-                     ->where('post.user_id',$userId)
-                     ->where('post.tipe','post');
+                $join->on('materi.id', '=', 'post.materi_id')
+                     ->where('post.user_id', '=', $userId)
+                     ->whereRaw("post.tipe = 'post'");
             })
             ->select(
                 'materi.pertemuan_ke',
-                DB::raw('COALESCE(pre.nilai,0) as pre'),
-                DB::raw('COALESCE(post.nilai,0) as post')
+                DB::raw('COALESCE(pre.nilai, 0) as pre'),
+                DB::raw('COALESCE(post.nilai, 0) as post')
             )
             ->orderBy('materi.pertemuan_ke')
             ->get();
 
-        return view('biogami.grafik', compact('data'));
+        return Inertia::render('Grafik', compact('data'));
     }
 }

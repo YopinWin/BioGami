@@ -1,118 +1,261 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Login - BIOGAMI</title>
+    <title>Login – BioGami</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
-        * {
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        *, *::before, *::after {
+            font-family: 'Outfit', sans-serif;
+            margin: 0; padding: 0; box-sizing: border-box;
         }
 
+        /* ── Background with nature photo + blur overlay ── */
         body {
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(135deg, #2e7d32, #66bb6a);
+            position: relative;
+            overflow: hidden;
+            background: #0d1f12;
         }
 
-        .login-container {
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            width: 350px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                url('https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=1600&q=80') center/cover no-repeat;
+            filter: blur(18px) brightness(0.45) saturate(1.2);
+            transform: scale(1.05);
+            z-index: 0;
+        }
+
+        /* Subtle green tint vignette */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at center, transparent 40%, rgba(10,40,15,0.6) 100%);
+            z-index: 0;
+        }
+
+        /* ── Glass Card ── */
+        .card {
+            position: relative;
+            z-index: 10;
+            width: 400px;
+            padding: 44px 40px;
+            border-radius: 28px;
+            background: rgba(255, 255, 255, 0.10);
+            backdrop-filter: blur(28px) saturate(1.8);
+            -webkit-backdrop-filter: blur(28px) saturate(1.8);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.35),
+                inset 0 1px 0 rgba(255,255,255,0.15);
+            animation: slideUp 0.5s cubic-bezier(.16,1,.3,1) both;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Brand ── */
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+
+        .brand-icon {
+            width: 42px; height: 42px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #4ade80, #16a34a);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 4px 16px rgba(74, 222, 128, 0.35);
+        }
+
+        .brand-name {
+            font-size: 24px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.5px;
+        }
+
+        h2 {
             text-align: center;
-            animation: fadeIn 0.8s ease;
+            font-size: 15px;
+            font-weight: 400;
+            color: rgba(255,255,255,0.65);
+            margin-bottom: 28px;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px);}
-            to { opacity: 1; transform: translateY(0);}
+        /* ── Inputs ── */
+        .field {
+            margin-bottom: 14px;
         }
 
-        .login-container h2 {
-            margin-bottom: 20px;
-            color: #2e7d32;
-        }
-
-        .login-container input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 10px;
-            border: 1px solid #ccc;
-            outline: none;
-            transition: 0.3s;
-        }
-
-        .login-container input:focus {
-            border-color: #4caf50;
-            box-shadow: 0 0 8px rgba(76, 175, 80, 0.3);
-        }
-
-        .login-container button {
-            width: 100%;
-            padding: 12px;
-            background: #2e7d32;
-            border: none;
-            color: white;
-            border-radius: 10px;
-            margin-top: 15px;
-            cursor: pointer;
+        label {
+            display: block;
+            font-size: 12px;
             font-weight: 600;
-            transition: 0.3s;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 6px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
 
-        .login-container button:hover {
-            background: #1b5e20;
-        }
-
-        .login-container p {
-            margin-top: 15px;
+        input[type="email"],
+        input[type="password"],
+        input[type="text"] {
+            width: 100%;
+            padding: 13px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.08);
+            color: #fff;
             font-size: 14px;
+            outline: none;
+            transition: all 0.25s;
         }
 
-        .login-container a {
-            color: #2e7d32;
+        input::placeholder { color: rgba(255,255,255,0.35); }
+
+        input:focus {
+            border-color: rgba(74, 222, 128, 0.6);
+            background: rgba(255,255,255,0.12);
+            box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.15);
+        }
+
+        /* ── Button ── */
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            margin-top: 8px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s;
+            box-shadow: 0 4px 20px rgba(34, 197, 94, 0.35);
+            letter-spacing: 0.2px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 24px rgba(34, 197, 94, 0.5);
+            background: linear-gradient(135deg, #16a34a, #15803d);
+        }
+
+        .btn-primary:active { transform: translateY(0); }
+
+        /* ── Footer link ── */
+        .footer-link {
+            text-align: center;
+            margin-top: 22px;
+            font-size: 13px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .footer-link a {
+            color: #4ade80;
+            font-weight: 600;
             text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-link a:hover { color: #86efac; }
+
+        /* ── Error box ── */
+        .error-box {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            padding: 10px 14px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+
+        .error-box ul { padding-left: 16px; }
+
+        /* ── Back link ── */
+        .back-link {
+            position: fixed;
+            top: 24px;
+            left: 28px;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
             font-weight: 500;
+            text-decoration: none;
+            transition: color 0.2s;
         }
 
-        .logo {
-            font-size: 40px;
-            margin-bottom: 10px;
-        }
-
+        .back-link:hover { color: #fff; }
     </style>
 </head>
 <body>
 
-<div class="login-container">
+    <a href="/" class="back-link">← Kembali</a>
 
-    <div class="logo">🌱</div>
-    <h2>Login BIOGAMI</h2>
+    <div class="card">
 
-    <form method="POST" action="/login">
-        @csrf
+        <div class="brand">
+            <div class="brand-icon">🌿</div>
+            <span class="brand-name">BioGami</span>
+        </div>
 
-        <input type="email" name="email" placeholder="Email" required>
-        <input type="password" name="password" placeholder="Password" required>
+        <h2>Masuk ke akun kamu</h2>
 
-        <button type="submit">Masuk</button>
-    </form>
+        @if ($errors->any())
+            <div class="error-box">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
-    <p>Belum punya akun? <a href="/register">Daftar</a></p>
+        @if (session('status'))
+            <div class="error-box" style="background:rgba(74,222,128,0.1); border-color:rgba(74,222,128,0.3); color:#86efac;">
+                {{ session('status') }}
+            </div>
+        @endif
 
-</div>
+        <form method="POST" action="/login">
+            @csrf
+
+            <div class="field">
+                <label>Email</label>
+                <input type="email" name="email" placeholder="nama@email.com" value="{{ old('email') }}" required autofocus>
+            </div>
+
+            <div class="field">
+                <label>Password</label>
+                <input type="password" name="password" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="btn-primary">Masuk →</button>
+        </form>
+
+        <p class="footer-link">Belum punya akun? <a href="/register">Daftar gratis</a></p>
+    </div>
 
 </body>
 </html>

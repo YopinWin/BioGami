@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 // CONTROLLER
 use App\Http\Controllers\ProfileController;
@@ -18,7 +19,7 @@ use App\Http\Controllers\LeaderboardController;
 */
 
 Route::get('/team', function () {
-    return view('biogami.team');
+    return Inertia::render('Team');
 });
 
 Route::get('/leaderboard', [LeaderboardController::class, 'index'])
@@ -121,12 +122,15 @@ Route::post('/ai-ask', function (Illuminate\Http\Request $req) {
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', [MateriController::class, 'kelasList']);
+Route::get('/', function () {
+    return Inertia::render('Welcome');
+});
+
 Route::get('/materi', [MateriController::class, 'kelasList']);
 
 //Flipbook
 Route::get('/flipbook', function () {
-    return view('biogami.flipbook');
+    return Inertia::render('Flipbook');
 });
 /*
 |--------------------------------------------------------------------------

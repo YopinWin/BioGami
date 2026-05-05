@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class LeaderboardController extends Controller
 {
@@ -12,12 +13,13 @@ class LeaderboardController extends Controller
             ->join('users', 'users.id', '=', 'user_progress.user_id')
             ->select(
                 'users.name as name',
+                'user_progress.user_id',
                 DB::raw('AVG(user_progress.nilai) as rata')
             )
-            ->groupBy('users.id', 'users.name')
+            ->groupBy('users.id', 'users.name', 'user_progress.user_id')
             ->orderByDesc('rata')
             ->get();
 
-        return view('biogami.leaderboard', compact('data'));
+        return Inertia::render('Leaderboard', compact('data'));
     }
 }
